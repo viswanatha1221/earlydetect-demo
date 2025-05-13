@@ -6,6 +6,16 @@ resource "aws_instance" "web" {
   vpc_security_group_ids = [var.sg_id]
   subnet_id = var.subnets[count.index]
   availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              yum update -y
+              amazon-linux-extras enable postgresql14
+              yum install -y postgresql-server
+              postgresql-setup initdb
+              systemctl enable postgresql
+              systemctl start postgresql
+              EOF
   
   tags = {
     Name = var.ec2_names[count.index]
